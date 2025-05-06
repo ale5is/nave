@@ -2,7 +2,7 @@
 using TMPro; // Asegúrate de tener esta línea
 using UnityEngine.SceneManagement; // Necesario para cargar y recargar escenas
 using UnityEngine.UI;
-using UnityEditor.Build.Reporting; // Necesario para interactuar con los botones de la UI
+//using UnityEditor.Build.Reporting; // Necesario para interactuar con los botones de la UI
 
 public class gameManager : MonoBehaviour
 {
