@@ -7,6 +7,8 @@ public class iaEnemigo : MonoBehaviour
     public float distanciaDeAcercarse = 15f;
     public float distanciaMinimaDeSeparacion = 5f;
     public float tiempoEntreDisparos = 1.5f;
+    public float dispersionGrados = 5f; // ← Nueva variable editable desde el Inspector
+
     public GameObject proyectilPrefab;
     public Transform puntoDisparo;
 
@@ -40,7 +42,6 @@ public class iaEnemigo : MonoBehaviour
         }
         else if (distancia <= distanciaDisparo)
         {
-            // Solo dispara si ha pasado el tiempo entre disparos
             if (Time.time >= tiempoSiguienteDisparo)
             {
                 Disparar();
@@ -53,14 +54,10 @@ public class iaEnemigo : MonoBehaviour
     {
         Vector3 direccion = jugador.position - transform.position;
 
-        // Evita errores si la dirección es cero
-        if (direccion.sqrMagnitude > 0.001f)
-        {
-            Quaternion rotacionDeseada = Quaternion.LookRotation(direccion);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionDeseada, Time.deltaTime * 5f);
-        }
+        // Calcula la rotación completa hacia el jugador (incluye eje Y)
+        Quaternion rotacion = Quaternion.LookRotation(direccion);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotacion, Time.deltaTime * 5f);
     }
-
 
 
     void MoverseHaciaElJugador()
@@ -82,24 +79,22 @@ public class iaEnemigo : MonoBehaviour
         // Instancia la bala
         GameObject proyectil = Instantiate(proyectilPrefab, puntoDisparo.position, Quaternion.identity);
 
-        // Calcula la dirección hacia el jugador
+        // Dirección base hacia el jugador
         Vector3 direccion = (jugador.position - puntoDisparo.position).normalized;
 
-        // Calcula la rotación hacia el jugador
-        Quaternion lookRotation = Quaternion.LookRotation(direccion);
+        // Aplica dispersión aleatoria
+        direccion = Quaternion.Euler(
+            Random.Range(-dispersionGrados, dispersionGrados),
+            Random.Range(-dispersionGrados, dispersionGrados),
+            Random.Range(-dispersionGrados, dispersionGrados)
+        ) * direccion;
 
-        // Aplica la rotación del prefab (90° en X) sobre la rotación hacia el jugador
+        // Calcula la rotación final (con corrección del modelo en X)
+        Quaternion lookRotation = Quaternion.LookRotation(direccion);
         Quaternion rotacionFinal = lookRotation * Quaternion.Euler(90f, 0f, 0f);
         proyectil.transform.rotation = rotacionFinal;
 
-        // Aplica la velocidad al proyectil
+        // Aplica la velocidad
         proyectil.GetComponent<Rigidbody>().velocity = direccion * 10f;
     }
-
-
-
-
-
-
-
 }
