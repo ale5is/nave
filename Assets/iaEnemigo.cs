@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class iaEnemigo : MonoBehaviour
 {
     public float velocidad = 3f;
-    public float distanciaDisparo = 10f; // Rango de disparo
-    public float distanciaAlejarse = 5f; // Rango en el que el enemigo se aleja del jugador
+    public float distanciaDisparo = 10f;
+    public float distanciaDeAcercarse = 15f;
+    public float distanciaMinimaDeSeparacion = 5f;
     public float tiempoEntreDisparos = 1.5f;
     public GameObject proyectilPrefab;
     public Transform puntoDisparo;
@@ -29,64 +28,78 @@ public class iaEnemigo : MonoBehaviour
 
         float distancia = Vector3.Distance(transform.position, jugador.position);
 
-        // Rotar al enemigo hacia el jugador
         RotarHaciaJugador();
 
-        // Si está más cerca que la distancia de alejarse, el enemigo se aleja
-        if (distancia < distanciaAlejarse)
+        if (distancia < distanciaMinimaDeSeparacion)
         {
             AlejarseDelJugador();
         }
-        // Si está fuera del rango de disparo, se mueve alrededor del jugador
-        else if (distancia > distanciaDisparo)
+        else if (distancia > distanciaDisparo && distancia <= distanciaDeAcercarse)
         {
-            MoverseAlrededorDelJugador();
+            MoverseHaciaElJugador();
         }
-        // Si está dentro del rango de disparo, dispara
-        else if (distancia <= distanciaDisparo && Time.time >= tiempoSiguienteDisparo)
+        else if (distancia <= distanciaDisparo)
         {
-            Disparar();
-            tiempoSiguienteDisparo = Time.time + tiempoEntreDisparos;
+            // Solo dispara si ha pasado el tiempo entre disparos
+            if (Time.time >= tiempoSiguienteDisparo)
+            {
+                Disparar();
+                tiempoSiguienteDisparo = Time.time + tiempoEntreDisparos;
+            }
         }
     }
 
-    // Método para rotar el enemigo hacia el jugador
     void RotarHaciaJugador()
     {
         Vector3 direccion = jugador.position - transform.position;
-        Quaternion rotacion = Quaternion.LookRotation(direccion);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotacion, Time.deltaTime * 5f); // Suavizado
+
+        // Evita errores si la dirección es cero
+        if (direccion.sqrMagnitude > 0.001f)
+        {
+            Quaternion rotacionDeseada = Quaternion.LookRotation(direccion);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionDeseada, Time.deltaTime * 5f);
+        }
     }
 
-    // Método para alejarse del jugador cuando está demasiado cerca
+
+
+    void MoverseHaciaElJugador()
+    {
+        Vector3 direccion = (jugador.position - transform.position).normalized;
+        transform.position += direccion * velocidad * Time.deltaTime;
+    }
+
     void AlejarseDelJugador()
     {
         Vector3 direccion = (transform.position - jugador.position).normalized;
-        transform.position += direccion * velocidad * Time.deltaTime; // Se aleja en la dirección opuesta al jugador
+        transform.position += direccion * velocidad * Time.deltaTime;
     }
 
-    // Método para mover el enemigo alrededor del jugador si está fuera del rango de disparo
-    void MoverseAlrededorDelJugador()
-    {
-        // Mover al enemigo en un círculo alrededor del jugador
-        Vector3 direccion = (transform.position - jugador.position).normalized;
-        Vector3 nuevaPosicion = jugador.position + direccion * distanciaDisparo * Mathf.Sin(Time.time * velocidad) * 0.5f;
-        transform.position = Vector3.MoveTowards(transform.position, nuevaPosicion, velocidad * Time.deltaTime);
-    }
-
-    // Método para disparar al jugador
     void Disparar()
     {
         if (proyectilPrefab == null || puntoDisparo == null) return;
 
-        GameObject proyectil = Instantiate(proyectilPrefab, puntoDisparo.position, puntoDisparo.rotation);
+        // Instancia la bala
+        GameObject proyectil = Instantiate(proyectilPrefab, puntoDisparo.position, Quaternion.identity);
 
-        // Mantiene la rotación en X en 90 grados y ajusta Y y Z para mirar hacia el jugador
-        Vector3 direccion = (jugador.position - proyectil.transform.position).normalized;
-        Quaternion rotacion = Quaternion.LookRotation(direccion);
-        proyectil.transform.rotation = Quaternion.Euler(90f, rotacion.eulerAngles.y, rotacion.eulerAngles.z);
+        // Calcula la dirección hacia el jugador
+        Vector3 direccion = (jugador.position - puntoDisparo.position).normalized;
+
+        // Calcula la rotación hacia el jugador
+        Quaternion lookRotation = Quaternion.LookRotation(direccion);
+
+        // Aplica la rotación del prefab (90° en X) sobre la rotación hacia el jugador
+        Quaternion rotacionFinal = lookRotation * Quaternion.Euler(90f, 0f, 0f);
+        proyectil.transform.rotation = rotacionFinal;
 
         // Aplica la velocidad al proyectil
         proyectil.GetComponent<Rigidbody>().velocity = direccion * 10f;
     }
+
+
+
+
+
+
+
 }

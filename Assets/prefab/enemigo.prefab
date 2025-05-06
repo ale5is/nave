@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 1375533026054475735}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.0209999}
-  m_LocalScale: {x: 0.1, y: 0.09999999, z: 0.09999999}
+  m_LocalPosition: {x: 0, y: 0, z: 1.143}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4192019719308078802}
@@ -133,8 +133,8 @@ Transform:
   m_GameObject: {fileID: 8041472953763295678}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -0, z: 0.8}
-  m_LocalScale: {x: 0.2, y: 0.3, z: 0.3}
+  m_LocalPosition: {x: 0, y: 0, z: 0.79}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4192019719308078802}
@@ -333,8 +333,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocidad: 3
-  distanciaDisparo: 30
-  distanciaAlejarse: 30
+  distanciaDisparo: 31
+  distanciaDeAcercarse: 100
+  distanciaMinimaDeSeparacion: 30
   tiempoEntreDisparos: 2
   proyectilPrefab: {fileID: 8716749797954850322, guid: 2a38fc8e80feea34f815f153167f7094, type: 3}
   puntoDisparo: {fileID: 253654278231960092}
